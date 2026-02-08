@@ -1,20 +1,17 @@
 {
-    "name": "hpcl-lead-intelligence-agent",
+    "name": "project1",
     "version": "1.0.0",
-    "description": "HPCL Lead Intelligence Agent - B2B Sales Intelligence Platform",
-    "main": "backend/server.js",
+    "description": "",
+    "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "dev": "NODE_ENV=development nodemon backend/server.js",
-        "dev:frontend": "cd frontend && npm run dev",
-        "build": "cd frontend && npm install && npm run build",
-        "start": "NODE_ENV=production node backend/server.js",
-        "install:all": "npm install && cd frontend && npm install",
-        "vercel-build": "cd frontend && npm install && npm run build"
+        "build": "npm install && npm install --prefix frontend && npm run build --prefix frontend",
+        "start":"NODE_ENV=production node backend/server.js"
     },
     "type": "module",
-    "keywords": ["hpcl", "lead-intelligence", "b2b", "sales", "ai"],
-    "author": "Shreyansh Agra",
+    "keywords": [],
+    "author": "",
     "license": "ISC",
     "dependencies": {
         "axios": "^1.6.0",
@@ -26,9 +23,5 @@
     },
     "devDependencies": {
         "nodemon": "^3.1.10"
-    },
-    "engines": {
-        "node": ">=18.0.0",
-        "npm": ">=9.0.0"
     }
 }
