@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { connectDB } from './config/db.js';
 import authRoutes from './routes/auth.js';
 import tenderRoutes from './routes/tender.js';
@@ -12,12 +13,13 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5001;
-const __dirname = path.resolve();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // CORS Configuration
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production' 
-    ? process.env.FRONTEND_URL 
+    ? process.env.FRONTEND_URL || '*'
     : ['http://localhost:5173', 'http://localhost:5174', 'http://127.0.0.1:5173'],
   credentials: true,
   optionsSuccessStatus: 200
@@ -26,6 +28,7 @@ const corsOptions = {
 // Middleware
 app.use(cors(corsOptions));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Request logging middleware (development only)
 if (process.env.NODE_ENV !== 'production') {
@@ -47,16 +50,18 @@ app.get('/api/health', (req, res) => {
     status: 'ok', 
     message: 'Server is running',
     port: PORT,
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
+    timestamp: new Date().toISOString()
   });
 });
 
 // Serve static files from frontend in production
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '/frontend/dist')));
+  const frontendPath = path.join(__dirname, '..', 'frontend', 'dist');
+  app.use(express.static(frontendPath));
   
   app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend', 'dist', 'index.html'));
+    res.sendFile(path.join(frontendPath, 'index.html'));
   });
 }
 
@@ -70,9 +75,16 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, () => {
+// For Vercel serverless function
+if (process.env.VERCEL) {
+  // Connect to DB once
   connectDB();
-  console.log(`
+  // Export the Express app as a serverless function
+} else {
+  // Traditional server for local development
+  app.listen(PORT, () => {
+    connectDB();
+    console.log(`
 ╔══════════════════════════════════════════════════════════╗
 ║  HPCL Lead Intelligence Agent Server                     ║
 ╠══════════════════════════════════════════════════════════╣
@@ -82,5 +94,6 @@ app.listen(PORT, () => {
 ║  API Base: http://localhost:${PORT}/api                    ║
 ║  Health Check: http://localhost:${PORT}/api/health         ║
 ╚══════════════════════════════════════════════════════════╝
-  `);
-});
+    `);
+  });
+}
