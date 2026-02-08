@@ -55,17 +55,34 @@ app.get('/api/health', (req, res) => {
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '/frontend/dist')));
   
-  app.get('*', (req, res) => {
+  // Only serve index.html for non-API routes
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api/')) {
+      return next(); // Let the error handler deal with 404s on API routes
+    }
     res.sendFile(path.join(__dirname, 'frontend', 'dist', 'index.html'));
   });
 }
+
+// 404 handler for undefined API routes
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ 
+      success: false, 
+      message: `API endpoint not found: ${req.path}` 
+    });
+  }
+  next();
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Server Error:', err);
   res.status(500).json({ 
     success: false, 
-    message: 'Internal server error', error: process.env.NODE_ENV !== 'production' ? err.message : undefined });
+    message: 'Internal server error',
+    error: process.env.NODE_ENV !== 'production' ? err.message : undefined
+  });
 });
 
 app.listen(PORT, () => {
