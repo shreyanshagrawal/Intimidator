@@ -80,6 +80,7 @@ if (process.env.VERCEL) {
   // Connect to DB once
   connectDB();
   // Export the Express app as a serverless function
+  export default app;
 } else {
   // Traditional server for local development
   app.listen(PORT, () => {
