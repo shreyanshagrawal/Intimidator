@@ -7,26 +7,35 @@ import DashboardOverview from "../components/DashboardOverview";
 import PriorityTable from "../components/PriorityTable";
 
 export default function Dashboard() {
-  const { user } = useAuth();
+  const { user, login } = useAuth();
   const [leads, setLeads] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentState, setCurrentState] = useState(user?.state || "");
 
   useEffect(() => {
-    fetchData();
+    if (user) {
+      setCurrentState(user.state);
+    }
   }, [user]);
 
+  useEffect(() => {
+    if (currentState) {
+      fetchData();
+    }
+  }, [currentState]);
+
   const fetchData = async () => {
-    if (!user) return;
+    if (!currentState) return;
 
     try {
       setLoading(true);
       
-      // Fetch leads and stats based on user's state
+      // Fetch leads and stats based on current state
       const [leadsResponse, statsResponse] = await Promise.all([
-        apiService.getAllLeads(user.state),
-        apiService.getDashboardStats(user.state)
+        apiService.getAllLeads(currentState),
+        apiService.getDashboardStats(currentState)
       ]);
 
       if (leadsResponse.success) {
@@ -46,6 +55,17 @@ export default function Dashboard() {
     }
   };
 
+  const handleStateChange = (newState) => {
+    console.log("Changing state view to:", newState);
+    setCurrentState(newState);
+    
+    // Update user's state in context and localStorage
+    if (user) {
+      const updatedUser = { ...user, state: newState };
+      login(updatedUser); // This updates localStorage
+    }
+  };
+
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
       
@@ -55,8 +75,8 @@ export default function Dashboard() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
         
-        {/* TopBar */}
-        <TopBar />
+        {/* TopBar with state change handler */}
+        <TopBar onStateChange={handleStateChange} />
 
         {/* Page Content */}
         <main className="flex-1 p-4 sm:p-6 space-y-6 overflow-y-auto">
@@ -80,7 +100,7 @@ export default function Dashboard() {
             </div>
           ) : (
             <>
-              <DashboardOverview stats={stats} state={user?.state} />
+              <DashboardOverview stats={stats} state={currentState} />
               <PriorityTable leads={leads} />
             </>
           )}

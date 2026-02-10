@@ -13,15 +13,6 @@ class ApiService {
 
     try {
       const response = await fetch(url, config);
-      
-      // Check content type before parsing
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        const text = await response.text();
-        console.error('Non-JSON response:', text);
-        throw new Error('Server returned non-JSON response. Check API endpoint: ' + endpoint);
-      }
-
       const data = await response.json();
 
       if (!response.ok) {
@@ -37,7 +28,7 @@ class ApiService {
 
   // Auth endpoints
   async login(email, password, state) {
-    return this.request(`/auth/login`, {
+    return this.request('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password, state }),
     });
