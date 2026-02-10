@@ -37,7 +37,7 @@ class ApiService {
 
   // Auth endpoints
   async login(email, password, state) {
-    return this.request('/auth/login', {
+    return this.request(`/auth/login`, {
       method: 'POST',
       body: JSON.stringify({ email, password, state }),
     });

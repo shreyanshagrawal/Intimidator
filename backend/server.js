@@ -57,13 +57,6 @@ app.get('/api/health', (req, res) => {
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '/frontend/dist')));
   
-  // Only serve index.html for non-API routes
-  app.get('*', (req, res, next) => {
-    if (req.path.startsWith('/api/')) {
-      return next(); // Let the error handler deal with 404s on API routes
-    }
-    res.sendFile(path.join(__dirname, 'frontend', 'dist', 'index.html'));
-  });
 }
 
 // 404 handler for undefined API routes
