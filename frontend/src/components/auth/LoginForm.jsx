@@ -58,7 +58,7 @@ export default function LoginForm() {
           }
         }
 
-        navigate("/");
+        navigate("/dashboard");
       } else {
         setError(response.message || "Login failed");
       }

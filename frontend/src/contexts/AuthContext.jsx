@@ -12,7 +12,7 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
   // BYPASS MODE: Set to true to skip authentication
-  const BYPASS_AUTH = true;
+  const BYPASS_AUTH = false;
   
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);

@@ -6,7 +6,7 @@ export default function ProtectedLayout() {
   const { isAuthenticated, loading } = useAuth();
 
   // BYPASS MODE: Set to true to skip authentication check
-  const BYPASS_AUTH = true;
+  const BYPASS_AUTH = false;
 
   if (loading) {
     return (
